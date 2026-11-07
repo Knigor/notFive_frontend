@@ -5,7 +5,7 @@ import vue from '@vitejs/plugin-vue'
 import { defineConfig } from 'vite'
 
 export default defineConfig({
-    base: '/notFive',
+    base: '/notFive_frontend/',
     plugins: [vue(), tailwindcss(), VueI18nPlugin()],
     server: {
         proxy: {
