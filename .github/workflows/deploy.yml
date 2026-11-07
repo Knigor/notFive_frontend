@@ -34,10 +34,12 @@ jobs:
         run: bun run lint
 
       - name: Build and check types
+        env:
+          VITE_GRAPHQL_URL: ${{ vars.GRAPHQL_URL }}
         run: bun run build
 
       - name: Unit tests
-        run: bun run test:coverage --passWithNoTests
+        run: bun run test:coverage
 
       - name: Configure Pages
         uses: actions/configure-pages@v6

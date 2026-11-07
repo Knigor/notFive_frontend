@@ -6,20 +6,23 @@
   "scripts": {
     "dev": "vite",
     "build": "bun run typecheck && vite build",
-    "typecheck": "vue-tsc --noEmit -p tsconfig.json --pretty",
+    "codegen": "graphql-codegen --config codegen.ts",
+    "typecheck": "bun run codegen && vue-tsc --noEmit -p tsconfig.json --pretty",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "preview": "vite preview",
-    "test": "vitest run",
-    "test:watch": "vitest",
-    "test:coverage": "vitest run --coverage"
+    "test": "bun run codegen && vitest run",
+    "test:watch": "bun run codegen && vitest",
+    "test:coverage": "bun run codegen && vitest run --coverage"
   },
   "dependencies": {
+    "@graphql-typed-document-node/core": "^3.2.0",
     "@lucide/vue": "^1.46.0",
     "@tailwindcss/vite": "^4.3.3",
     "@vueuse/core": "^15.0.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "graphql": "^17.1.0",
     "reka-ui": "^2.10.4",
     "tailwind-merge": "^3.6.0",
     "tailwindcss": "^4.3.3",
@@ -29,6 +32,8 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@graphql-codegen/cli": "^8.0.0",
+    "@graphql-codegen/client-preset": "^7.0.0",
     "@intlify/unplugin-vue-i18n": "^11.2.5",
     "@stylistic/eslint-plugin": "^5.10.0",
     "@testing-library/user-event": "^14.6.8",
