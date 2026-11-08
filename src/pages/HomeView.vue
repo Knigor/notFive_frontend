@@ -25,6 +25,7 @@
                             <DropdownMenuLabel class="px-2 py-1 text-sm font-medium">
                                 {{ t('navigation.language') }}
                             </DropdownMenuLabel>
+                            <DropdownMenuSeparator class="mx-2 my-2 h-px bg-border" />
                             <DropdownMenuRadioGroup :model-value="locale" @update:model-value="setLocale">
                                 <DropdownMenuRadioItem
                                     class="flex min-h-11 cursor-pointer items-center justify-between gap-3 rounded-sm px-2 py-2 text-sm outline-none data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground"
@@ -124,6 +125,12 @@
         <footer id="about" class="mt-6 scroll-mt-6 border-t border-border pt-5 xl:mt-10">
             <div class="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between xl:gap-6">
                 <BrandLogo class="text-3xl leading-9" />
+                <RouterLink
+                    class="inline-flex min-h-11 items-center rounded-sm font-sans text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"
+                    :to="{ name: 'admin-settings' }"
+                >
+                    {{ t('adminLink') }}
+                </RouterLink>
             </div>
         </footer>
     </div>
@@ -297,6 +304,7 @@ watch(locale, (value) => {
 {
     "ru-RU": {
         "skipToNews": "Перейти к новостям",
+        "adminLink": "Для администратора",
         "chooseIssue": "Выбрать выпуск",
         "availableIssues": "Доступные выпуски",
         "issueNotice": "Сейчас доступен один выпуск из примера организаторов.",
@@ -342,6 +350,7 @@ watch(locale, (value) => {
     },
     "en-GB": {
         "skipToNews": "Skip to news",
+        "adminLink": "Administrator access",
         "chooseIssue": "Choose an issue",
         "availableIssues": "Available issues",
         "issueNotice": "One issue from the organisers’ example is currently available.",

@@ -1,0 +1,11 @@
+mutation StartRun($input: RunStartInput!) {
+  startRun(input: $input) {
+    runId
+    imported
+    rejected
+    siteCount
+    inputKind
+    dispatchStatus
+    status
+  }
+}

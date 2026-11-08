@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "bun run codegen && vite",
-    "build": "bun run typecheck && vite build",
+    "build": "bun run typecheck && vite build && cp dist/index.html dist/404.html",
     "codegen": "graphql-codegen --config codegen.ts",
     "typecheck": "bun run codegen && vue-tsc --noEmit -p tsconfig.json --pretty",
     "lint": "eslint .",
@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "@graphql-typed-document-node/core": "^3.2.0",
+    "@internationalized/date": "3.12.4",
     "@lucide/vue": "^1.46.0",
     "@tailwindcss/vite": "^4.3.3",
     "@vueuse/core": "^15.0.0",

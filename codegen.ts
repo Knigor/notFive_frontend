@@ -10,7 +10,14 @@ const config: CodegenConfig = {
                 fragmentMasking: false
             },
             config: {
-                useTypeImports: true
+                useTypeImports: true,
+                defaultScalarType: 'unknown',
+                scalars: {
+                    Upload: {
+                        input: 'File',
+                        output: 'unknown'
+                    }
+                }
             }
         }
     }

@@ -1,0 +1,9 @@
+query AvailableSiteSources {
+  availableSiteSources {
+    id
+    name
+    taskUrl
+    searchDomain
+    status
+  }
+}

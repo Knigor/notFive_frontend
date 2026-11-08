@@ -141,11 +141,15 @@
 }
 
 @layer utilities {
+  [data-slot="input"][aria-invalid="true"],
+  [data-slot="textarea"][aria-invalid="true"],
   [data-slot="button"][aria-invalid="true"],
   [data-slot="select-trigger"][aria-invalid="true"] {
     @apply border-destructive ring-destructive/20;
   }
 
+  .dark [data-slot="input"][aria-invalid="true"],
+  .dark [data-slot="textarea"][aria-invalid="true"],
   .dark [data-slot="button"][aria-invalid="true"],
   .dark [data-slot="select-trigger"][aria-invalid="true"] {
     @apply ring-destructive/40;

@@ -70,6 +70,8 @@ export default defineConfig([
             'vue/multi-word-component-names': ['error', {
                 'ignores': [
                     'Button',
+                    'Input',
+                    'Textarea',
                     'Select'
                 ]
             }]
