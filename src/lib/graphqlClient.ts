@@ -31,14 +31,15 @@ type RequestOptions = {
     token?: string
 }
 
-async function execute<TData, TVariables>(
+export const executeGraphQL = async <TData, TVariables>(
+    endpoint: URL,
     document: TypedDocumentNode<TData, TVariables>,
     variables: TVariables,
     options: RequestOptions = {}
-): Promise<TData> {
+): Promise<TData> => {
     let response: Response
     try {
-        response = await fetch(import.meta.env.VITE_GRAPHQL_URL || '/api/graphql', {
+        response = await fetch(endpoint, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -68,9 +69,4 @@ async function execute<TData, TVariables>(
     if (payload.data === undefined) throw new ApiError('INVALID_RESPONSE', 'graphql')
 
     return payload.data
-}
-
-export const graphqlClient = {
-    query: execute,
-    mutate: execute
 }

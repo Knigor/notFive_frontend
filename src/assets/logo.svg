@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="175 120 281 391" fill="white">
+    <path d="M175 120h54v245l-54 54V120Z" />
+    <path d="M251 120h54v169l-54 54V120Z" />
+    <path d="M327 120h53v93l-53 53V120Z" />
+    <path d="M403 120h53v18l-53 53v-71Z" />
+    <path d="m403 268 53-54v297h-53V268Z" />
+    <path d="m327 343 53-54v222h-53V343Z" />
+    <path d="m251 420 54-54v145h-54V420Z" />
+    <path d="m175 497 54-54v68h-54v-14Z" />
+</svg>

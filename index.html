@@ -1,10 +1,29 @@
 <!doctype html>
-<html lang="ru">
+<html lang="ru" class="dark">
   <head>
     <meta charset="UTF-8" />
     <title>notFive</title>
-    <meta name="description" content="Добро пожаловать в notFive." />
+    <meta name="description" content="notFive — пять главных событий кибербезопасности за сутки." />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script>
+        (() => {
+            let preference = 'dark'
+
+            try {
+                const saved = localStorage.getItem('vueuse-color-scheme')
+                if (saved === 'light' || saved === 'dark' || saved === 'auto') {
+                    preference = saved
+                }
+            } catch {}
+
+            const dark = preference === 'dark'
+                || (preference === 'auto' && matchMedia('(prefers-color-scheme: dark)').matches)
+
+            document.documentElement.classList.toggle('dark', dark)
+            document.documentElement.classList.toggle('light', !dark)
+            document.documentElement.style.colorScheme = dark ? 'dark' : 'light'
+        })()
+    </script>
     <link href="/src/assets/style.css" rel="stylesheet" />
   </head>
   <body>

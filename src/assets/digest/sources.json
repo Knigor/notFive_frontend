@@ -1,0 +1,37 @@
+[
+  {
+    "file": "01-server-racks.jpg",
+    "author": "Brett Sayles",
+    "source": "https://www.pexels.com/photo/server-racks-on-data-center-4508751/",
+    "license": "Pexels License",
+    "illustrative": true
+  },
+  {
+    "file": "02-laptop-office.jpg",
+    "author": "Mizuno K",
+    "source": "https://www.pexels.com/photo/laptop-on-desk-in-office-12899149/",
+    "license": "Pexels License",
+    "illustrative": true
+  },
+  {
+    "file": "03-code-workspace.jpg",
+    "author": "Daniil Komov",
+    "source": "https://www.pexels.com/photo/modern-workspace-with-laptop-and-code-display-34804003/",
+    "license": "Pexels License",
+    "illustrative": true
+  },
+  {
+    "file": "04-storage-drive.jpg",
+    "author": "Borja Verbena",
+    "source": "https://unsplash.com/photos/a-close-up-of-a-hard-drive-on-a-black-surface-tvdRHAcD22k",
+    "license": "Unsplash License",
+    "illustrative": true
+  },
+  {
+    "file": "05-email-laptop.jpg",
+    "author": "RDNE Stock project",
+    "source": "https://www.pexels.com/photo/a-laptop-on-the-table-7821764/",
+    "license": "Pexels License",
+    "illustrative": true
+  }
+]

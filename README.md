@@ -8,12 +8,44 @@
 
 ```bash
 bun install --frozen-lockfile
+cp .env.dist .env
 bun run dev
 ```
+
+`dev` сначала генерирует GraphQL-типы в `src/gql/` из локальной `schema.graphql`
+и операций `src/**/*.graphql`, затем запускает Vite. Эта папка не хранится в Git.
+Чтобы подготовить типы для IDE без запуска сервера, выполни `bun run codegen`.
+
+## API
+
+В `.env` задаётся базовый адрес backend:
+
+```dotenv
+VITE_URL_BACKEND=http://api.galaxiit.ru/
+```
+
+Общая точка входа — экземпляр `api` класса `ApiClient` в `src/api/index.ts`:
+
+```ts
+import { api } from '@/api'
+
+const result = await api.ping()
+```
+
+Клиент добавляет к базовому адресу путь `api/graphql`. `ping` — техническая
+проверка соединения. Методы операций находятся рядом с `.graphql`-документами;
+отправка запросов и обработка ошибок — в `src/lib/graphqlClient.ts`.
+После изменения `.env` перезапусти Vite. Переменные `VITE_*` попадают в frontend;
+секреты в них хранить нельзя.
+
+Запросы идут напрямую на backend, которому нужно разрешить origin frontend
+через CORS. Для frontend на HTTPS (включая GitHub Pages) нужен HTTPS-адрес API:
+HTTP-запросы блокируются браузером как mixed content.
 
 ## Команды
 
 ```bash
+bun run codegen
 bun run lint
 bun run typecheck
 bun run build
@@ -56,7 +88,7 @@ push в `main` / `master` и вручную. Из него удалена пер
 
 Страницы портфолио, API галереи, связанные composables, типы и тесты,
 личные изображения, `.env.local`, настройки IDE, Git-история и результаты
-старых сборок не переносились. Переменные окружения для приветствия не нужны.
+старых сборок не переносились.
 Workflow публикации в GitHub Pages перенесён из `Study/knigor`.
 Удалена переменная API галереи, для тестового раннера добавлен
 `--passWithNoTests`, как в CI, пока собственных тестов нет.
@@ -76,8 +108,8 @@ Vue Router использует базовый путь Vite через `import.
 нужно отдельно решить обработку прямых переходов: GitHub Pages
 не предоставляет серверный fallback для HTML5 history.
 
-Бэкенд размещается отдельно на VPS; его адрес будет настраиваться
-при подключении API.
+Бэкенд размещается отдельно на VPS. Для release-сборки задай repository variable
+`URL_BACKEND`: workflow передаёт её в `VITE_URL_BACKEND` во время сборки.
 `bun run dev` и `bun run preview` предназначены для локальной проверки.
 
 ## Кейс и исследование

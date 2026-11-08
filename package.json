@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "bun run codegen && vite",
     "build": "bun run typecheck && vite build",
     "codegen": "graphql-codegen --config codegen.ts",
     "typecheck": "bun run codegen && vue-tsc --noEmit -p tsconfig.json --pretty",

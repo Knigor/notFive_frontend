@@ -27,3 +27,5 @@ sketches
 *.njsproj
 *.sln
 *.sw?
+
+.env
