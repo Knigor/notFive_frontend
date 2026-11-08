@@ -9,18 +9,18 @@
         <main class="flex flex-1 items-center justify-center py-12 md:py-16">
             <section class="w-full max-w-md" aria-labelledby="login-title">
                 <p class="mb-3 text-xs font-medium tracking-widest text-muted-foreground uppercase">
-                    {{ t('eyebrow') }}
+                    Панель управления
                 </p>
                 <h1 id="login-title" class="font-serif text-4xl leading-tight text-primary sm:text-5xl">
-                    {{ t('title') }}
+                    Вход администратора
                 </h1>
                 <p class="mt-4 text-sm leading-6 text-muted-foreground">
-                    {{ t('description') }}
+                    Загрузка материалов и настройка источников для следующего выпуска дайджеста.
                 </p>
                 <div class="mt-8 rounded-xl border border-border bg-card p-4 sm:p-8">
                     <form class="space-y-5" :aria-busy="isSubmitting" @submit.prevent="signIn">
                         <div class="space-y-2">
-                            <label class="block text-sm font-medium" for="admin-username">{{ t('username') }}</label>
+                            <label class="block text-sm font-medium" for="admin-username">Логин</label>
                             <Input
                                 id="admin-username"
                                 v-model="username"
@@ -34,7 +34,7 @@
                             />
                         </div>
                         <div class="space-y-2">
-                            <label class="block text-sm font-medium" for="admin-password">{{ t('password') }}</label>
+                            <label class="block text-sm font-medium" for="admin-password">Пароль</label>
                             <div class="relative">
                                 <Input
                                     id="admin-password"
@@ -51,7 +51,7 @@
                                     type="button"
                                     variant="ghost"
                                     size="icon"
-                                    :aria-label="showPassword ? t('hidePassword') : t('showPassword')"
+                                    :aria-label="showPassword ? 'Скрыть пароль' : 'Показать пароль'"
                                     :aria-pressed="showPassword"
                                     @click="showPassword = !showPassword"
                                 >
@@ -67,7 +67,7 @@
                         >
                             <LoaderCircle v-if="isSubmitting" class="size-4 animate-spin motion-reduce:animate-none" aria-hidden="true" />
                             <LockKeyhole v-else class="size-4" aria-hidden="true" />
-                            {{ t(isSubmitting ? 'signingIn' : 'signIn') }}
+                            {{ isSubmitting ? 'Входим…' : 'Войти' }}
                         </Button>
                         <p v-if="error" class="text-sm leading-6 text-destructive" role="alert">
                             {{ error }}
@@ -79,7 +79,7 @@
                     :to="{ name: 'home' }"
                 >
                     <ArrowLeft class="size-4" aria-hidden="true" />
-                    {{ t('back') }}
+                    Вернуться к дайджесту
                 </RouterLink>
             </section>
         </main>
@@ -96,14 +96,12 @@ import ThemeSwitcher from '@/components/ThemeSwitcher.vue'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 
-import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 import { useAdminAuth } from '@/composables/useAdminAuth'
 
 import { api } from '@/api'
 import { ApiError } from '@/lib/graphqlClient'
 
-const { t } = useI18n({ useScope: 'local' })
 const route = useRoute()
 const router = useRouter()
 const { setSession, clearSession } = useAdminAuth()
@@ -130,8 +128,8 @@ const signIn = async () => {
         error.value = cause instanceof ApiError && cause.kind === 'graphql'
             ? cause.message
             : cause instanceof ApiError && cause.status && cause.status >= 500
-                ? t('serverError')
-                : t('connectionError')
+                ? 'Сервер авторизации временно недоступен. Повторите попытку позже.'
+                : 'Не удалось выполнить вход. Проверьте соединение и повторите попытку.'
     } finally {
         isSubmitting.value = false
     }
@@ -139,36 +137,3 @@ const signIn = async () => {
 
 onBeforeUnmount(() => request?.abort())
 </script>
-
-<i18n lang="json">
-{
-    "ru-RU": {
-        "eyebrow": "Панель управления",
-        "title": "Вход администратора",
-        "description": "Загрузка материалов и настройка источников для следующего выпуска дайджеста.",
-        "username": "Логин",
-        "password": "Пароль",
-        "showPassword": "Показать пароль",
-        "hidePassword": "Скрыть пароль",
-        "signIn": "Войти",
-        "signingIn": "Входим…",
-        "connectionError": "Не удалось выполнить вход. Проверьте соединение и повторите попытку.",
-        "serverError": "Сервер авторизации временно недоступен. Повторите попытку позже.",
-        "back": "Вернуться к дайджесту"
-    },
-    "en-GB": {
-        "eyebrow": "Administration",
-        "title": "Administrator sign in",
-        "description": "Upload articles and configure sources for the next digest issue.",
-        "username": "Username",
-        "password": "Password",
-        "showPassword": "Show password",
-        "hidePassword": "Hide password",
-        "signIn": "Sign in",
-        "signingIn": "Signing in…",
-        "connectionError": "Could not sign in. Check your connection and try again.",
-        "serverError": "The authentication server is temporarily unavailable. Please try again later.",
-        "back": "Back to the digest"
-    }
-}
-</i18n>

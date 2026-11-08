@@ -13,23 +13,23 @@
                 <CalendarDays class="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
             </Button>
         </PopoverTrigger>
-        <PopoverContent class="w-80 p-0 font-sans" :aria-label="t('title')">
+        <PopoverContent class="w-80 p-0 font-sans" aria-label="Контрольные дата и время">
             <Calendar
                 initial-focus
                 prevent-deselect
                 fixed-weeks
+                locale="ru-RU"
+                previous-label="Предыдущий месяц"
+                next-label="Следующий месяц"
+                calendar-label="Контрольная дата"
                 :model-value="selectedDate"
                 :default-placeholder="today('Europe/Moscow')"
-                :locale="locale"
                 :week-starts-on="1"
-                :previous-label="t('previousMonth')"
-                :next-label="t('nextMonth')"
-                :calendar-label="t('date')"
                 @update:model-value="setDate"
             />
             <div class="space-y-3 border-t border-border p-3">
                 <div class="flex items-center gap-3">
-                    <label class="min-w-0 flex-1 text-sm font-medium" :for="`${id}-time`">{{ t('time') }}</label>
+                    <label class="min-w-0 flex-1 text-sm font-medium" :for="`${id}-time`">Время · МСК</label>
                     <Input
                         :id="`${id}-time`"
                         v-model="selectedTime"
@@ -39,7 +39,7 @@
                     />
                 </div>
                 <Button class="h-11 w-full" type="button" @click="isOpen = false">
-                    {{ t('done') }}
+                    Готово
                 </Button>
             </div>
         </PopoverContent>
@@ -58,8 +58,6 @@ import { Calendar } from '@/components/ui/calendar'
 import { Input } from '@/components/ui/input'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 
-import { useI18n } from 'vue-i18n'
-
 defineOptions({ inheritAttrs: false })
 
 defineProps<{
@@ -67,8 +65,6 @@ defineProps<{
     disabled?: boolean
 }>()
 const model = defineModel<string>({ required: true })
-const { t } = useI18n({ useScope: 'local' })
-const { locale } = useI18n({ useScope: 'global' })
 const isOpen = ref(false)
 
 const selectedDate = computed(() => {
@@ -90,8 +86,8 @@ const selectedTime = computed({
 })
 
 const formattedValue = computed(() => {
-    if (!selectedDate.value) return t('placeholder')
-    const date = new Intl.DateTimeFormat(locale.value, {
+    if (!selectedDate.value) return 'Выберите дату и время'
+    const date = new Intl.DateTimeFormat('ru-RU', {
         day: '2-digit',
         month: 'long',
         year: 'numeric',
@@ -105,26 +101,3 @@ const setDate = (date: DateValue | undefined) => {
     model.value = `${date.toString()}T${selectedTime.value || '00:00'}`
 }
 </script>
-
-<i18n lang="json">
-{
-    "ru-RU": {
-        "title": "Контрольные дата и время",
-        "date": "Контрольная дата",
-        "time": "Время · МСК",
-        "previousMonth": "Предыдущий месяц",
-        "nextMonth": "Следующий месяц",
-        "placeholder": "Выберите дату и время",
-        "done": "Готово"
-    },
-    "en-GB": {
-        "title": "Cut-off date and time",
-        "date": "Cut-off date",
-        "time": "Time · MSK",
-        "previousMonth": "Previous month",
-        "nextMonth": "Next month",
-        "placeholder": "Choose date and time",
-        "done": "Done"
-    }
-}
-</i18n>

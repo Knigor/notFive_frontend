@@ -75,7 +75,8 @@ export const executeGraphQL = async <TData, TVariables>(
             method: 'POST',
             headers: {
                 ...(!files.length ? { 'Content-Type': 'application/json' } : {}),
-                ...(options.token ? { Authorization: `Bearer ${options.token}` } : {})
+                ...(options.token ? { Authorization: `Bearer ${options.token}` } : {}),
+                'Accept-Language': 'ru'
             },
             body,
             signal: options.signal

@@ -56,7 +56,7 @@ export default defineConfig([
         name: 'Vue',
         files: ['**/*.vue'],
         rules: {
-            'vue/block-order': ['error', { order: ['template', 'script', 'style', 'i18n'] }],
+            'vue/block-order': ['error', { order: ['template', 'script', 'style'] }],
             'vue/html-indent': ['error', 4],
             'vue/max-attributes-per-line': ['error', {
                 singleline: {

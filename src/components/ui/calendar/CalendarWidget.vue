@@ -93,7 +93,7 @@ const props = withDefaults(defineProps<Omit<CalendarRootProps, 'multiple'> & {
     class?: HTMLAttributes['class']
     previousLabel?: string
     nextLabel?: string
-}>(), { previousLabel: 'Previous month', nextLabel: 'Next month', weekdayFormat: 'short' })
+}>(), { previousLabel: 'Предыдущий месяц', nextLabel: 'Следующий месяц', weekdayFormat: 'short', locale: 'ru-RU' })
 const emits = defineEmits<CalendarRootEmits>()
 const forwarded = useForwardPropsEmits(reactiveOmit(props, 'class', 'previousLabel', 'nextLabel'), emits)
 </script>

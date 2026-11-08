@@ -5,52 +5,14 @@
             type="button"
             @click="focusNews"
         >
-            {{ t('skipToNews') }}
+            Перейти к новостям
         </button>
         <header class="grid h-16 grid-cols-[1fr_auto_1fr] items-center border-b border-border">
-            <div class="-ml-2 justify-self-start">
-                <DropdownMenu>
-                    <DropdownMenuTrigger as-child>
-                        <Button
-                            class="size-11"
-                            variant="ghost"
-                            size="icon"
-                            :aria-label="t('navigation.language')"
-                        >
-                            <Menu class="size-5" aria-hidden="true" />
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent class="w-52 font-sans" align="start">
-                        <div class="p-1">
-                            <DropdownMenuLabel class="px-2 py-1 text-sm font-medium">
-                                {{ t('navigation.language') }}
-                            </DropdownMenuLabel>
-                            <DropdownMenuSeparator class="mx-2 my-2 h-px bg-border" />
-                            <DropdownMenuRadioGroup :model-value="locale" @update:model-value="setLocale">
-                                <DropdownMenuRadioItem
-                                    class="flex min-h-11 cursor-pointer items-center justify-between gap-3 rounded-sm px-2 py-2 text-sm outline-none data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground"
-                                    value="ru-RU"
-                                >
-                                    Русский
-                                    <Check v-if="locale === 'ru-RU'" class="size-4" aria-hidden="true" />
-                                </DropdownMenuRadioItem>
-                                <DropdownMenuRadioItem
-                                    class="flex min-h-11 cursor-pointer items-center justify-between gap-3 rounded-sm px-2 py-2 text-sm outline-none data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground"
-                                    value="en-GB"
-                                >
-                                    English
-                                    <Check v-if="locale === 'en-GB'" class="size-4" aria-hidden="true" />
-                                </DropdownMenuRadioItem>
-                            </DropdownMenuRadioGroup>
-                        </div>
-                    </DropdownMenuContent>
-                </DropdownMenu>
-            </div>
             <RouterLink
-                class="inline-flex min-h-11 items-center text-[28px] leading-11 text-primary sm:text-4xl"
+                class="col-start-2 inline-flex min-h-11 items-center text-[28px] leading-11 text-primary sm:text-4xl"
                 :to="{ name: 'home' }"
             >
-                <BrandLogo />
+                <BrandLogo :show-text="false" />
             </RouterLink>
             <div class="-mr-2 flex justify-self-end">
                 <DropdownMenu>
@@ -59,7 +21,7 @@
                             class="size-11"
                             variant="ghost"
                             size="icon"
-                            :aria-label="t('chooseIssue')"
+                            aria-label="Выбрать выпуск"
                         >
                             <CalendarDays class="size-5" aria-hidden="true" />
                         </Button>
@@ -67,15 +29,21 @@
                     <DropdownMenuContent class="w-64 font-sans" align="end">
                         <div class="p-1">
                             <DropdownMenuLabel class="px-2 py-1 text-sm font-medium">
-                                {{ t('availableIssues') }}
+                                Доступные выпуски
                             </DropdownMenuLabel>
-                            <DropdownMenuItem class="min-h-11 justify-between">
-                                {{ issueDate }}
-                                <Check class="size-4" aria-hidden="true" />
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <p class="px-2 py-2 text-sm leading-5 text-muted-foreground">
-                                {{ t('issueNotice') }}
+                            <div class="max-h-72 overflow-y-auto">
+                                <DropdownMenuItem
+                                    v-for="date in dates"
+                                    :key="date"
+                                    class="min-h-11 justify-between"
+                                    @select="selectDate(date)"
+                                >
+                                    {{ formatIssueDate(date) }}
+                                    <Check v-if="selectedDate === date" class="size-4" aria-hidden="true" />
+                                </DropdownMenuItem>
+                            </div>
+                            <p v-if="!dates.length" class="px-2 py-2 text-sm leading-5 text-muted-foreground">
+                                {{ pending ? 'Загружаем выпуски…' : error ? 'Список выпусков недоступен.' : 'Опубликованных выпусков пока нет.' }}
                             </p>
                         </div>
                     </DropdownMenuContent>
@@ -84,52 +52,68 @@
             </div>
         </header>
         <p class="flex min-h-16 flex-wrap items-center justify-center gap-x-2 border-b border-border py-3 text-center font-sans text-xs leading-5 text-muted-foreground xl:min-h-12 xl:gap-x-4 xl:font-serif xl:text-base xl:leading-6">
-            <span>{{ t('topic') }}</span>
+            <span>Кибербезопасность</span>
             <span aria-hidden="true">·</span>
-            <span>{{ t('edition') }}</span>
-            <span class="hidden xl:inline" aria-hidden="true">·</span>
-            <time class="basis-full xl:basis-auto" :datetime="digestExample.controlTime">{{ issueDate }}</time>
+            <span>Ежедневный дайджест</span>
+            <span v-if="selectedDate" class="hidden xl:inline" aria-hidden="true">·</span>
+            <time v-if="selectedDate" class="basis-full xl:basis-auto" :datetime="selectedDate">{{ formatIssueDate(selectedDate) }}</time>
         </p>
         <main
             id="news"
             ref="news"
             class="scroll-mt-6"
             tabindex="-1"
+            :aria-busy="pending"
         >
             <div class="pt-6 pb-8 text-center">
                 <h1 class="text-[42px] leading-11 font-normal text-primary md:text-[64px] md:leading-[72px] xl:text-[84px] xl:leading-[92px]">
-                    <span class="block md:inline">{{ t('titleFirst') }}</span>{{ ' ' }}<span>{{ t('titleSecond') }}</span>
+                    <span class="block md:inline">Актуальные</span>{{ ' ' }}<span>Новости</span>
                 </h1>
-                <p class="mt-1 font-sans text-xs leading-5 text-muted-foreground xl:font-serif xl:text-[17px] xl:leading-6">
-                    {{ period }}
-                </p>
-                <p class="mt-2 font-sans text-xs leading-5 text-muted-foreground">
-                    {{ t('issueSummary', { events: articles.length, total: digestExample.totalMaterials, time: controlTime }) }}
-                </p>
+                <template v-if="digest">
+                    <p class="mt-1 font-sans text-xs leading-5 text-muted-foreground xl:font-serif xl:text-[17px] xl:leading-6">
+                        {{ period }}
+                    </p>
+                    <p class="mt-2 font-sans text-xs leading-5 text-muted-foreground">
+                        {{ articles.length }} событий из {{ digest.totalMaterials }} материалов · Контрольное время {{ controlTime }} МСК
+                    </p>
+                </template>
+                <div class="mt-5 flex justify-center">
+                    <EmailSubscriptionDialog />
+                </div>
             </div>
-            <ol class="digest-grid grid list-none gap-8 p-0 md:grid-cols-2 xl:gap-6">
+            <p v-if="pending" class="py-12 text-center font-sans text-muted-foreground" role="status">
+                Загружаем выпуск…
+            </p>
+            <div v-else-if="error" class="space-y-4 py-12 text-center font-sans">
+                <p class="text-destructive" role="alert">
+                    {{ error }}
+                </p>
+                <Button type="button" variant="outline" @click="refresh">
+                    Попробовать ещё раз
+                </Button>
+            </div>
+            <ol v-else-if="articles.length" class="digest-grid grid list-none gap-8 p-0 md:grid-cols-2 xl:gap-6">
                 <li
                     v-for="article in articles"
                     :key="article.id"
                     class="min-w-0"
                     :class="`digest-grid__item--${article.rank}`"
                 >
-                    <DigestCard
-                        :article="article"
-                        :locale="locale"
-                        :labels="articleLabels"
-                    />
+                    <DigestCard :article="article" :total-events="articles.length" />
                 </li>
             </ol>
+            <p v-else class="py-12 text-center font-sans text-muted-foreground" role="status">
+                {{ digest ? 'В этом выпуске нет отобранных событий.' : selectedDate ? 'За выбранную дату опубликованного выпуска нет.' : 'Опубликованных выпусков пока нет.' }}
+            </p>
         </main>
         <footer id="about" class="mt-6 scroll-mt-6 border-t border-border pt-5 xl:mt-10">
             <div class="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between xl:gap-6">
-                <BrandLogo class="text-3xl leading-9" />
+                <BrandLogo class="text-3xl leading-9" :show-text="false" />
                 <RouterLink
                     class="inline-flex min-h-11 items-center rounded-sm font-sans text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"
                     :to="{ name: 'admin-settings' }"
                 >
-                    {{ t('adminLink') }}
+                    @ notFive
                 </RouterLink>
             </div>
         </footer>
@@ -137,12 +121,13 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, ref } from 'vue'
 
-import { CalendarDays, Check, Menu } from '@lucide/vue'
+import { CalendarDays, Check } from '@lucide/vue'
 import { RouterLink } from 'vue-router'
 import BrandLogo from '@/components/BrandLogo.vue'
 import DigestCard from '@/components/DigestCard.vue'
+import EmailSubscriptionDialog from '@/components/EmailSubscriptionDialog.vue'
 import ThemeSwitcher from '@/components/ThemeSwitcher.vue'
 import { Button } from '@/components/ui/button'
 import {
@@ -150,23 +135,18 @@ import {
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuLabel,
-    DropdownMenuRadioGroup,
-    DropdownMenuRadioItem,
-    DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 
-import { useI18n } from 'vue-i18n'
+import { usePublishedDigest } from '@/composables/usePublishedDigest'
 
 import serverRacks from '@/assets/digest/01-server-racks.jpg'
 import laptopOffice from '@/assets/digest/02-laptop-office.jpg'
 import codeWorkspace from '@/assets/digest/03-code-workspace.jpg'
 import storageDrive from '@/assets/digest/04-storage-drive.jpg'
 import emailLaptop from '@/assets/digest/05-email-laptop.jpg'
-import { digestExample } from '@/pages/digestExample'
 
-const { t } = useI18n({ useScope: 'local' })
-const { locale } = useI18n({ useScope: 'global' })
+const { dates, selectedDate, digest, pending, error, refresh, selectDate } = usePublishedDigest()
 const news = ref<HTMLElement | null>(null)
 
 const focusNews = () => {
@@ -174,70 +154,35 @@ const focusNews = () => {
     news.value?.scrollIntoView({ block: 'start' })
 }
 
-const articleImages: Record<string, string> = {
-    strazhshlyuz: serverRacks,
-    buhlink: codeWorkspace,
-    translogistik: laptopOffice,
-    romashka: storageDrive,
-    kii: emailLaptop,
-}
+const illustrations = [
+    { image: serverRacks, imageAlt: 'Иллюстрация: серверные стойки в дата-центре' },
+    { image: codeWorkspace, imageAlt: 'Иллюстрация: ноутбук с редактором кода' },
+    { image: laptopOffice, imageAlt: 'Иллюстрация: компьютеры на рабочем столе' },
+    { image: storageDrive, imageAlt: 'Иллюстрация: внутреннее устройство жёсткого диска' },
+    { image: emailLaptop, imageAlt: 'Иллюстрация: почтовое сообщение на экране ноутбука' },
+]
 
-const issueDate = computed(() => new Intl.DateTimeFormat(locale.value, {
-    timeZone: 'Europe/Moscow',
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-}).format(new Date(digestExample.controlTime)))
+const formatIssueDate = (date: string) => new Intl.DateTimeFormat('ru-RU', {
+    timeZone: 'Europe/Moscow', day: 'numeric', month: 'long', year: 'numeric',
+}).format(new Date(`${date}T12:00:00+03:00`))
 
-const controlTime = computed(() => new Intl.DateTimeFormat(locale.value, {
-    timeZone: 'Europe/Moscow',
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: false,
-}).format(new Date(digestExample.controlTime)))
+const controlTime = computed(() => digest.value ? new Intl.DateTimeFormat('ru-RU', {
+    timeZone: 'Europe/Moscow', hour: '2-digit', minute: '2-digit', hour12: false,
+}).format(new Date(digest.value.controlTime)) : '')
 
 const period = computed(() => {
-    const dateFormat = new Intl.DateTimeFormat(locale.value, {
-        timeZone: 'Europe/Moscow',
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: false,
+    if (!digest.value) return ''
+    const dateFormat = new Intl.DateTimeFormat('ru-RU', {
+        timeZone: 'Europe/Moscow', day: '2-digit', month: '2-digit', year: 'numeric',
+        hour: '2-digit', minute: '2-digit', hour12: false,
     })
-
-    return t('period', {
-        start: dateFormat.format(new Date(digestExample.periodStart)),
-        end: dateFormat.format(new Date(digestExample.controlTime)),
-    })
+    return `${dateFormat.format(new Date(digest.value.periodStart))} — ${dateFormat.format(new Date(digest.value.controlTime))} МСК`
 })
 
-const articleLabels = computed(() => ({
-    sources: t('sources'),
-    details: t('details'),
-    collapse: t('collapse'),
-    essence: t('essence'),
-    consequences: t('consequences'),
-    rationale: t('rationale'),
-    rank: t('rank'),
-}))
-
-const articles = computed(() => digestExample.events.map(article => ({
+const articles = computed(() => (digest.value?.events ?? []).map(article => ({
     ...article,
-    category: t(`articles.${article.id}.category`),
-    image: articleImages[article.id] ?? serverRacks,
-    imageAlt: t(`articles.${article.id}.imageAlt`),
-    caveat: article.id === 'romashka' ? t('conflictingReports') : undefined,
+    ...(illustrations[article.rank - 1] ?? { image: serverRacks, imageAlt: 'Иллюстрация: серверные стойки в дата-центре' }),
 })))
-
-const setLocale = (value: unknown) => {
-    if (value === 'ru-RU' || value === 'en-GB') locale.value = value
-}
-
-watch(locale, (value) => {
-    document.documentElement.lang = value
-}, { immediate: true })
 </script>
 
 <style scoped>
@@ -299,100 +244,3 @@ watch(locale, (value) => {
     }
 }
 </style>
-
-<i18n lang="json">
-{
-    "ru-RU": {
-        "skipToNews": "Перейти к новостям",
-        "adminLink": "Для администратора",
-        "chooseIssue": "Выбрать выпуск",
-        "availableIssues": "Доступные выпуски",
-        "issueNotice": "Сейчас доступен один выпуск из примера организаторов.",
-        "topic": "Кибербезопасность",
-        "edition": "Ежедневный дайджест",
-        "titleFirst": "Актуальные",
-        "titleSecond": "Новости",
-        "period": "{start} — {end} МСК",
-        "issueSummary": "{events} событий из {total} материалов · Контрольное время {time} МСК",
-        "sources": "Источники",
-        "details": "Подробнее",
-        "collapse": "Свернуть",
-        "essence": "Суть",
-        "consequences": "Последствия",
-        "rationale": "Почему в выпуске",
-        "rank": "Событие",
-        "conflictingReports": "Оценки расходятся",
-        "navigation": {
-            "language": "Язык"
-        },
-        "articles": {
-            "strazhshlyuz": {
-                "category": "Уязвимость",
-                "imageAlt": "Ряды серверных стоек в дата-центре"
-            },
-            "buhlink": {
-                "category": "Цепочка поставок",
-                "imageAlt": "Ноутбук с открытым редактором кода"
-            },
-            "translogistik": {
-                "category": "Шифровальщик",
-                "imageAlt": "Ноутбуки и мониторы на рабочем столе"
-            },
-            "romashka": {
-                "category": "Утечка данных",
-                "imageAlt": "Внутреннее устройство жёсткого диска"
-            },
-            "kii": {
-                "category": "Регулирование",
-                "imageAlt": "Почтовое сообщение на экране ноутбука"
-            }
-        }
-    },
-    "en-GB": {
-        "skipToNews": "Skip to news",
-        "adminLink": "Administrator access",
-        "chooseIssue": "Choose an issue",
-        "availableIssues": "Available issues",
-        "issueNotice": "One issue from the organisers’ example is currently available.",
-        "topic": "Cybersecurity",
-        "edition": "Daily digest",
-        "titleFirst": "Latest",
-        "titleSecond": "News",
-        "period": "{start} — {end} MSK",
-        "issueSummary": "{events} events from {total} articles · Cut-off time {time} MSK",
-        "sources": "Sources",
-        "details": "Read more",
-        "collapse": "Collapse",
-        "essence": "What happened",
-        "consequences": "Impact",
-        "rationale": "Why it matters",
-        "rank": "Event",
-        "conflictingReports": "Conflicting estimates",
-        "navigation": {
-            "language": "Language"
-        },
-        "articles": {
-            "strazhshlyuz": {
-                "category": "Vulnerability",
-                "imageAlt": "Rows of server racks in a data centre"
-            },
-            "buhlink": {
-                "category": "Supply chain",
-                "imageAlt": "A laptop displaying a code editor"
-            },
-            "translogistik": {
-                "category": "Ransomware",
-                "imageAlt": "Laptops and monitors on an office desk"
-            },
-            "romashka": {
-                "category": "Data breach",
-                "imageAlt": "The internal mechanism of a hard drive"
-            },
-            "kii": {
-                "category": "Regulation",
-                "imageAlt": "An email message on a laptop screen"
-            }
-        }
-    }
-}
-</i18n>

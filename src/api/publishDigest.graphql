@@ -1,0 +1,10 @@
+mutation PublishDigest($runId: ID!) {
+    publishDigest(runId: $runId) {
+        runId
+        publishedAt
+        alreadyPublished
+        emailSent
+        emailFailed
+        emailPending
+    }
+}

@@ -16,11 +16,11 @@
                     as-child
                     v-bind="$attrs"
                     :disabled="disabled"
-                    :placeholder="t('search')"
+                    placeholder="Поиск по названию или домену"
                 >
                     <Input v-model="search" class="pr-12 pl-10" />
                 </ComboboxInput>
-                <ComboboxTrigger as-child :aria-label="t('showOptions')">
+                <ComboboxTrigger as-child aria-label="Показать список сайтов">
                     <Button
                         class="absolute top-0 right-0 size-11 rounded-l-none"
                         type="button"
@@ -37,13 +37,13 @@
                     class="z-50 w-(--reka-combobox-trigger-width) max-w-[calc(100vw-2rem)] overflow-hidden rounded-lg border bg-popover p-1 font-sans text-popover-foreground shadow-md"
                     position="popper"
                     align="start"
-                    :aria-label="t('sites')"
+                    aria-label="Сайты"
                     :side-offset="8"
                     :collision-padding="16"
                 >
                     <ComboboxViewport class="max-h-[min(20rem,var(--reka-combobox-content-available-height))]">
                         <ComboboxEmpty class="px-3 py-6 text-center text-sm text-muted-foreground">
-                            {{ t('noResults') }}
+                            Сайты не найдены. Попробуйте другой запрос.
                         </ComboboxEmpty>
                         <ComboboxItem
                             v-for="source in sources"
@@ -70,7 +70,7 @@
         </ComboboxRoot>
         <div class="flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
             <p class="text-xs leading-5 text-muted-foreground" role="status" aria-live="polite">
-                {{ t('selectedCount', { count: model.length, max }) }}
+                Выбрано: {{ model.length }} из {{ max }}
             </p>
             <Button
                 v-if="model.length"
@@ -80,17 +80,17 @@
                 :disabled="disabled"
                 @click="model = []"
             >
-                {{ t('clear') }}
+                Снять выбор
             </Button>
         </div>
-        <ul v-if="selectedSources.length" class="flex flex-wrap gap-2" :aria-label="t('selectedSites')">
+        <ul v-if="selectedSources.length" class="flex flex-wrap gap-2" aria-label="Выбранные сайты">
             <li v-for="source in selectedSources" :key="source.id" class="min-w-0 max-w-full">
                 <Button
                     class="min-h-11 max-w-full gap-2 bg-secondary px-3 py-2 text-xs whitespace-normal"
                     type="button"
                     variant="outline"
                     :disabled="disabled"
-                    :aria-label="t('remove', { site: source.searchDomain })"
+                    :aria-label="`Убрать ${source.searchDomain}`"
                     @click="removeSource(source.id)"
                 >
                     <span class="min-w-0 wrap-anywhere">{{ source.searchDomain }}</span>
@@ -99,7 +99,7 @@
             </li>
         </ul>
         <p v-if="isFull" class="text-xs leading-5 text-muted-foreground">
-            {{ t('limit', { max }) }}
+            Выбрано максимум {{ max }} сайтов. Уберите один, чтобы выбрать другой.
         </p>
     </div>
 </template>
@@ -125,8 +125,6 @@ import {
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 
-import { useI18n } from 'vue-i18n'
-
 defineOptions({ inheritAttrs: false })
 
 const props = withDefaults(defineProps<{
@@ -136,7 +134,6 @@ const props = withDefaults(defineProps<{
     max?: number
 }>(), { disabled: false, max: 5 })
 const model = defineModel<string[]>({ required: true })
-const { t } = useI18n({ useScope: 'local' })
 const search = ref('')
 const selectedSources = computed(() => model.value.flatMap(id => props.sources.filter(source => source.id === id)))
 const isFull = computed(() => model.value.length >= props.max)
@@ -154,30 +151,3 @@ const removeSource = (id: string) => {
     if (!props.disabled) model.value = model.value.filter(value => value !== id)
 }
 </script>
-
-<i18n lang="json">
-{
-    "ru-RU": {
-        "search": "Поиск по названию или домену",
-        "sites": "Сайты",
-        "showOptions": "Показать список сайтов",
-        "noResults": "Сайты не найдены. Попробуйте другой запрос.",
-        "selectedCount": "Выбрано: {count} из {max}",
-        "selectedSites": "Выбранные сайты",
-        "clear": "Снять выбор",
-        "remove": "Убрать {site}",
-        "limit": "Выбрано максимум {max} сайтов. Уберите один, чтобы выбрать другой."
-    },
-    "en-GB": {
-        "search": "Search by name or domain",
-        "sites": "Websites",
-        "showOptions": "Show website list",
-        "noResults": "No websites found. Try another search.",
-        "selectedCount": "Selected: {count} of {max}",
-        "selectedSites": "Selected websites",
-        "clear": "Clear selection",
-        "remove": "Remove {site}",
-        "limit": "You have selected the maximum of {max} websites. Remove one to choose another."
-    }
-}
-</i18n>

@@ -6,7 +6,7 @@
                     <BrandLogo />
                 </RouterLink>
                 <div class="flex items-center gap-2">
-                    <span class="hidden rounded-full border px-3 py-1 text-xs text-muted-foreground sm:inline">{{ t('admin') }}</span>
+                    <span class="hidden rounded-full border px-3 py-1 text-xs text-muted-foreground sm:inline">Администратор</span>
                     <ThemeSwitcher />
                     <Button
                         class="h-11"
@@ -15,7 +15,7 @@
                         @click="signOut"
                     >
                         <LogOut class="size-4" aria-hidden="true" />
-                        {{ t('signOut') }}
+                        Выйти
                     </Button>
                 </div>
             </div>
@@ -23,22 +23,22 @@
         <main class="mx-auto max-w-6xl px-4 py-6 sm:px-8 sm:py-10">
             <RouterLink class="inline-flex min-h-11 items-center gap-2 rounded-sm text-sm text-muted-foreground hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring" :to="{ name: 'home' }">
                 <ArrowLeft class="size-4" aria-hidden="true" />
-                {{ t('backToSite') }}
+                На сайт
             </RouterLink>
             <div class="mt-4 mb-8">
                 <h1 class="font-serif text-4xl leading-tight text-primary sm:text-5xl">
-                    {{ t('title') }}
+                    Настройки
                 </h1>
             </div>
             <div class="grid gap-6 lg:grid-cols-[224px_minmax(0,1fr)] lg:gap-8">
-                <nav class="grid grid-cols-2 content-start gap-2 lg:grid-cols-1" :aria-label="t('inputNavigation')">
+                <nav class="grid grid-cols-2 content-start gap-2 lg:grid-cols-1" aria-label="Способ загрузки материалов">
                     <RouterLink
                         class="flex min-h-16 items-center gap-3 rounded-lg border p-3 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring sm:p-4"
                         :class="isSources ? 'border-transparent text-muted-foreground hover:bg-muted hover:text-foreground' : 'border-border bg-card text-primary shadow-xs'"
                         :to="{ name: 'admin-settings' }"
                     >
                         <FileJson class="size-5 shrink-0" aria-hidden="true" />
-                        <span>{{ t('fileTab') }}</span>
+                        <span>Файл news.json</span>
                     </RouterLink>
                     <RouterLink
                         class="flex min-h-16 items-center gap-3 rounded-lg border p-3 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring sm:p-4"
@@ -46,7 +46,7 @@
                         :to="{ name: 'admin-sources' }"
                     >
                         <Globe class="size-5 shrink-0" aria-hidden="true" />
-                        <span>{{ t('sourcesTab') }}</span>
+                        <span>Сайты для сбора</span>
                     </RouterLink>
                 </nav>
                 <section class="min-w-0 rounded-xl border border-border bg-card p-5 shadow-xs sm:p-8" aria-labelledby="input-heading">
@@ -57,10 +57,10 @@
                         </span>
                         <div class="min-w-0">
                             <h2 id="input-heading" class="font-serif text-2xl leading-8 sm:text-3xl">
-                                {{ t(isSources ? 'sourcesTitle' : 'fileTitle') }}
+                                {{ isSources ? 'Сбор с сайтов' : 'Готовый набор новостей' }}
                             </h2>
                             <p class="mt-2 text-sm leading-6 text-muted-foreground">
-                                {{ t(isSources ? 'sourcesDescription' : 'fileDescription') }}
+                                {{ isSources ? 'Выберите источники из приложения 1 к заданию, чтобы собрать материалы для дайджеста.' : 'Загрузите news.json с материалами и контрольным временем. Исходные данные сохраняются без изменений.' }}
                             </p>
                         </div>
                     </div>
@@ -73,20 +73,20 @@
                     >
                         <p v-if="isSubmitting" class="flex items-center gap-2 text-primary">
                             <LoaderCircle class="size-4 shrink-0 animate-spin motion-reduce:animate-none" aria-hidden="true" />
-                            {{ t('processing') }}
+                            Обрабатываем материалы. Это может занять несколько минут…
                         </p>
                         <p v-else-if="submitError" class="text-destructive">
                             {{ submitError }}
                         </p>
                         <template v-else-if="runResult">
                             <p class="font-medium" :class="runResult.dispatchStatus === 'failed' ? 'text-destructive' : 'text-primary'">
-                                {{ t(runResult.dispatchStatus === 'failed' ? 'runFailed' : runResult.dispatchStatus === 'completed' ? 'runCompleted' : 'runQueued') }}
+                                {{ runResult.dispatchStatus === 'failed' ? 'Запуск создан, но сбор завершился ошибкой.' : runResult.dispatchStatus === 'completed' ? 'Сбор завершён, материалы переданы на обработку.' : 'Запуск создан и ожидает обработки.' }}
                             </p>
                             <p class="mt-2 text-muted-foreground wrap-anywhere">
-                                {{ t('runId') }}: {{ runResult.runId }}
+                                Номер запуска: {{ runResult.runId }}
                             </p>
                             <p class="mt-1">
-                                {{ t('runCounts', { imported: runResult.imported, rejected: runResult.rejected, sites: runResult.siteCount }) }}
+                                Материалов: {{ runResult.imported }}. Отклонено: {{ runResult.rejected }}. Сайтов: {{ runResult.siteCount }}.
                             </p>
                         </template>
                     </div>
@@ -114,8 +114,8 @@
                                 :class="isDragging ? 'border-primary bg-secondary' : 'border-border bg-muted/30'"
                             >
                                 <Upload class="size-8 text-primary" aria-hidden="true" />
-                                <span class="font-medium text-primary">{{ t(selectedFile ? 'replaceFile' : 'chooseFile') }}</span>
-                                <span id="file-hint" class="max-w-sm text-sm leading-6 text-muted-foreground">{{ t('fileHint') }}</span>
+                                <span class="font-medium text-primary">{{ selectedFile ? 'Выбрать другой файл' : 'Выбрать файл' }}</span>
+                                <span id="file-hint" class="max-w-sm text-sm leading-6 text-muted-foreground">Или перетащите сюда один JSON-файл с набором новостей.</span>
                                 <span class="rounded-md border bg-background px-3 py-1 font-mono text-xs text-muted-foreground">news.json</span>
                             </label>
                         </div>
@@ -134,7 +134,7 @@
                                 type="button"
                                 variant="ghost"
                                 size="icon"
-                                :aria-label="t('removeFile')"
+                                aria-label="Удалить выбранный файл"
                                 :disabled="isSubmitting"
                                 @click="clearFile"
                             >
@@ -149,20 +149,20 @@
                             :aria-busy="isReading"
                         >
                             <p v-if="isReading" class="text-muted-foreground">
-                                {{ t('reading') }}
+                                Проверяем файл…
                             </p>
                             <p v-else-if="fileError" class="text-destructive">
-                                {{ t('errors.' + fileError) }}
+                                {{ inputErrorMessages[fileError] }}
                             </p>
                             <p v-else-if="dataset" class="flex items-center gap-2 text-primary">
                                 <CircleCheck class="size-4 shrink-0" aria-hidden="true" />
-                                {{ t('fileReady') }}
+                                Формат набора проверен
                             </p>
                         </div>
                         <dl v-if="dataset" class="mt-4 grid gap-4 rounded-lg bg-muted/50 p-4 text-sm sm:grid-cols-2">
                             <div>
                                 <dt class="text-muted-foreground">
-                                    {{ t('articleCount') }}
+                                    Материалов в наборе
                                 </dt>
                                 <dd class="mt-1 font-medium">
                                     {{ dataset.articleCount }}
@@ -170,7 +170,7 @@
                             </div>
                             <div>
                                 <dt class="text-muted-foreground">
-                                    {{ t('dataset') }}
+                                    Название набора
                                 </dt>
                                 <dd class="mt-1 font-medium wrap-anywhere">
                                     {{ dataset.dataset }}
@@ -178,7 +178,7 @@
                             </div>
                             <div>
                                 <dt class="text-muted-foreground">
-                                    {{ t('controlTime') }}
+                                    Контрольное время · МСК
                                 </dt>
                                 <dd class="mt-1 font-medium">
                                     {{ formatDate(dataset.controlTime) }}
@@ -186,7 +186,7 @@
                             </div>
                             <div>
                                 <dt class="text-muted-foreground">
-                                    {{ t('periodStart') }}
+                                    Начало периода · МСК
                                 </dt>
                                 <dd class="mt-1 font-medium">
                                     {{ formatDate(dataset.periodStart) }}
@@ -199,7 +199,7 @@
                                 type="submit"
                                 :disabled="isSubmitting || isReading || !dataset || !selectedFile"
                             >
-                                {{ t(isSubmitting ? 'submitting' : 'processFile') }}
+                                {{ isSubmitting ? 'Обрабатываем…' : 'Отправить на обработку' }}
                                 <LoaderCircle v-if="isSubmitting" class="size-4 animate-spin motion-reduce:animate-none" aria-hidden="true" />
                                 <ArrowRight v-else class="size-4" aria-hidden="true" />
                             </Button>
@@ -214,17 +214,17 @@
                     >
                         <div>
                             <p v-if="isLoadingSources" class="text-sm text-muted-foreground" role="status">
-                                {{ t('loadingSources') }}
+                                Загружаем доступные сайты…
                             </p>
                             <div v-else-if="catalogError" class="space-y-2 text-sm" role="alert">
                                 <p class="text-destructive">
                                     {{ catalogError }}
                                 </p>
                                 <Button type="button" variant="outline" @click="loadSources">
-                                    {{ t('retry') }}
+                                    Повторить
                                 </Button>
                             </div>
-                            <label class="mb-2 block text-sm font-medium" for="source-select">{{ t('sourceSelection') }}</label>
+                            <label class="mb-2 block text-sm font-medium" for="source-select">Сайты для сбора</label>
                             <AdminSourceSelect
                                 id="source-select"
                                 v-model="selectedSourceIds"
@@ -235,11 +235,11 @@
                                 @update:model-value="resetSources"
                             />
                             <p id="sources-hint" class="mt-2 text-xs leading-5 text-muted-foreground">
-                                {{ t('sourcesHint') }}
+                                Выберите до пяти сайтов. Для демонстрации по заданию нужно согласовать 3–5 источников. Сбор выполняется по домену сайта.
                             </p>
                         </div>
                         <div class="max-w-sm">
-                            <label class="mb-2 block text-sm font-medium" for="control-time">{{ t('controlTime') }}</label>
+                            <label class="mb-2 block text-sm font-medium" for="control-time">Контрольное время · МСК</label>
                             <AdminDateTimePicker
                                 id="control-time"
                                 v-model="controlTime"
@@ -249,10 +249,10 @@
                                 @update:model-value="resetSources"
                             />
                             <p id="time-hint" class="mt-2 text-xs leading-5 text-muted-foreground">
-                                {{ t('timeHint') }}
+                                Для отбора используются материалы за 24 часа до этого момента. Время московское.
                             </p>
                             <p v-if="timeError" id="time-error" class="mt-2 text-sm text-destructive">
-                                {{ t('errors.invalidTime') }}
+                                Укажите корректные дату и время.
                             </p>
                         </div>
                         <div
@@ -262,11 +262,11 @@
                             aria-live="polite"
                         >
                             <p v-if="sourceError" class="text-destructive">
-                                {{ t('errors.' + sourceError) }}
+                                {{ inputErrorMessages[sourceError] }}
                             </p>
                             <div v-if="unavailableSources.length" class="space-y-3 rounded-lg border border-border bg-muted/50 p-4">
                                 <p>
-                                    {{ t('sourcesNotConnected') }}
+                                    Сбор ещё не подключён для выбранных источников. Запуск станет доступен после их подключения.
                                 </p>
                                 <p class="text-muted-foreground wrap-anywhere">
                                     {{ unavailableSources.map(source => source.name).join(', ') }}
@@ -278,7 +278,7 @@
                                     :disabled="isLoadingSources || isSubmitting"
                                     @click="loadSources"
                                 >
-                                    {{ t('refreshSources') }}
+                                    Обновить каталог
                                 </Button>
                             </div>
                         </div>
@@ -288,7 +288,7 @@
                                 type="submit"
                                 :disabled="isSubmitting || isLoadingSources || Boolean(catalogError) || !sourceSelection.ok"
                             >
-                                {{ t(isSubmitting ? 'submitting' : 'collectSources') }}
+                                {{ isSubmitting ? 'Обрабатываем…' : 'Собрать материалы' }}
                                 <LoaderCircle v-if="isSubmitting" class="size-4 animate-spin motion-reduce:animate-none" aria-hidden="true" />
                                 <ArrowRight v-else class="size-4" aria-hidden="true" />
                             </Button>
@@ -314,7 +314,6 @@ import BrandLogo from '@/components/BrandLogo.vue'
 import ThemeSwitcher from '@/components/ThemeSwitcher.vue'
 import { Button } from '@/components/ui/button'
 
-import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 import { useAdminAuth } from '@/composables/useAdminAuth'
 
@@ -322,8 +321,21 @@ import { api } from '@/api'
 import { parseNewsDataset, resolveSourceIds } from '@/lib/adminInputs'
 import { ApiError, isUnauthorizedError } from '@/lib/graphqlClient'
 
-const { t } = useI18n({ useScope: 'local' })
-const { locale } = useI18n({ useScope: 'global' })
+const inputErrorMessages: Record<string, string> = {
+    jsonFile: 'Выберите файл с расширением .json.',
+    fileTooLarge: 'Размер файла не должен превышать 50 МБ.',
+    singleFile: 'Загрузите один news.json за раз.',
+    readFile: 'Не удалось прочитать файл. Выберите его повторно.',
+    invalidJson: 'Файл содержит некорректный JSON. Проверьте его содержимое.',
+    invalidDataset: 'Нужны control_time и period_start в формате ISO 8601 с секундами и часовым поясом, период ровно 24 часа. Допустимый timezone — Europe/Moscow.',
+    invalidItems: 'В наборе news.json должен быть массив items.',
+    unknownSources: 'Выбранный сайт отсутствует в каталоге. Обновите каталог и выберите источники заново.',
+    tooManySources: 'За один запуск можно выбрать не более пяти разных сайтов.',
+    required: 'Выберите хотя бы один сайт.',
+    unavailableSources: 'Сбор для выбранных источников ещё не подключён.',
+    duplicateDomains: 'Выберите сайты с разными доменами.',
+}
+
 const route = useRoute()
 const router = useRouter()
 const { getToken, clearSession } = useAdminAuth()
@@ -362,15 +374,13 @@ const controlTime = ref(new Intl.DateTimeFormat('sv-SE', {
 }).format(new Date()).replace(' ', 'T'))
 let fileReadVersion = 0
 
-const formatDate = (value: string) => new Intl.DateTimeFormat(locale.value, {
+const formatDate = (value: string) => new Intl.DateTimeFormat('ru-RU', {
     timeZone: 'Europe/Moscow',
     dateStyle: 'short',
     timeStyle: 'short',
 }).format(new Date(value))
 
-const formatSize = (bytes: number) => t('fileSize', {
-    size: new Intl.NumberFormat(locale.value, { maximumFractionDigits: 1 }).format(bytes / 1024),
-})
+const formatSize = (bytes: number) => `${new Intl.NumberFormat('ru-RU', { maximumFractionDigits: 1 }).format(bytes / 1024)} КБ`
 
 const clearFile = () => {
     fileReadVersion += 1
@@ -448,7 +458,7 @@ const requireSignIn = async () => {
 
 const errorMessage = (error: unknown) => error instanceof ApiError && error.kind === 'graphql'
     ? error.message
-    : t('connectionError')
+    : 'Не удалось получить данные. Проверьте соединение и повторите попытку.'
 
 const loadSources = async () => {
     const token = getToken()
@@ -486,7 +496,7 @@ const startRun = async (input: StartRunInput) => {
     } catch (error) {
         if (runRequest.signal.aborted) return
         if (isUnauthorizedError(error)) await requireSignIn()
-        else submitError.value = error instanceof ApiError && error.kind === 'graphql' ? error.message : t('runConnectionError')
+        else submitError.value = error instanceof ApiError && error.kind === 'graphql' ? error.message : 'Ответ сервера не получен. Запуск мог быть создан; проверьте его состояние перед повторной отправкой.'
     } finally {
         isSubmitting.value = false
     }
@@ -523,122 +533,3 @@ onBeforeUnmount(() => {
     runRequest?.abort()
 })
 </script>
-
-<i18n lang="json">
-{
-    "ru-RU": {
-        "admin": "Администратор",
-        "signOut": "Выйти",
-        "backToSite": "На сайт",
-        "title": "Настройки",
-        "inputNavigation": "Способ загрузки материалов",
-        "fileTab": "Файл news.json",
-        "sourcesTab": "Сайты для сбора",
-        "fileTitle": "Готовый набор новостей",
-        "fileDescription": "Загрузите news.json с материалами и контрольным временем. Исходные данные сохраняются без изменений.",
-        "chooseFile": "Выбрать файл",
-        "replaceFile": "Выбрать другой файл",
-        "fileHint": "Или перетащите сюда один JSON-файл с набором новостей.",
-        "removeFile": "Удалить выбранный файл",
-        "fileSize": "{size} КБ",
-        "reading": "Проверяем файл…",
-        "fileReady": "Формат набора проверен",
-        "articleCount": "Материалов в наборе",
-        "dataset": "Название набора",
-        "controlTime": "Контрольное время · МСК",
-        "periodStart": "Начало периода · МСК",
-        "processFile": "Отправить на обработку",
-        "submitting": "Обрабатываем…",
-        "processing": "Обрабатываем материалы. Это может занять несколько минут…",
-        "runCompleted": "Сбор завершён, материалы переданы на обработку.",
-        "runQueued": "Запуск создан и ожидает обработки.",
-        "runFailed": "Запуск создан, но сбор завершился ошибкой.",
-        "runId": "Номер запуска",
-        "runCounts": "Материалов: {imported}. Отклонено: {rejected}. Сайтов: {sites}.",
-        "connectionError": "Не удалось получить данные. Проверьте соединение и повторите попытку.",
-        "runConnectionError": "Ответ сервера не получен. Запуск мог быть создан; проверьте его состояние перед повторной отправкой.",
-        "loadingSources": "Загружаем доступные сайты…",
-        "retry": "Повторить",
-        "sourcesTitle": "Сбор с сайтов",
-        "sourcesDescription": "Выберите источники из приложения 1 к заданию, чтобы собрать материалы для дайджеста.",
-        "sourcesHint": "Выберите до пяти сайтов. Для демонстрации по заданию нужно согласовать 3–5 источников. Сбор выполняется по домену сайта.",
-        "timeHint": "Для отбора используются материалы за 24 часа до этого момента. Время московское.",
-        "collectSources": "Собрать материалы",
-        "errors": {
-            "jsonFile": "Выберите файл с расширением .json.",
-            "fileTooLarge": "Размер файла не должен превышать 50 МБ.",
-            "singleFile": "Загрузите один news.json за раз.",
-            "readFile": "Не удалось прочитать файл. Выберите его повторно.",
-            "invalidJson": "Файл содержит некорректный JSON. Проверьте его содержимое.",
-            "invalidDataset": "Нужны control_time и period_start в формате ISO 8601 с секундами и часовым поясом, период ровно 24 часа. Допустимый timezone — Europe/Moscow.",
-            "invalidItems": "В наборе news.json должен быть массив items.",
-            "unknownSources": "Выбранный сайт отсутствует в каталоге. Обновите каталог и выберите источники заново.",
-            "tooManySources": "За один запуск можно выбрать не более пяти разных сайтов.",
-            "required": "Выберите хотя бы один сайт.",
-            "invalidTime": "Укажите корректные дату и время.",
-            "unavailableSources": "Сбор для выбранных источников ещё не подключён.",
-            "duplicateDomains": "Выберите сайты с разными доменами."
-        },
-        "sourceSelection": "Сайты для сбора",
-        "sourcesNotConnected": "Сбор ещё не подключён для выбранных источников. Запуск станет доступен после их подключения.",
-        "refreshSources": "Обновить каталог"
-    },
-    "en-GB": {
-        "admin": "Administrator",
-        "signOut": "Sign out",
-        "backToSite": "Back to site",
-        "title": "Settings",
-        "inputNavigation": "News input method",
-        "fileTab": "news.json file",
-        "sourcesTab": "Source websites",
-        "fileTitle": "Prepared news dataset",
-        "fileDescription": "Upload news.json with articles and a cut-off time. The original data is kept unchanged.",
-        "chooseFile": "Choose a file",
-        "replaceFile": "Choose another file",
-        "fileHint": "Or drag one JSON news dataset here.",
-        "removeFile": "Remove selected file",
-        "fileSize": "{size} KB",
-        "reading": "Checking file…",
-        "fileReady": "Dataset format checked",
-        "articleCount": "Articles in dataset",
-        "dataset": "Dataset name",
-        "controlTime": "Cut-off time · MSK",
-        "periodStart": "Period start · MSK",
-        "processFile": "Submit for processing",
-        "submitting": "Processing…",
-        "processing": "Processing articles. This may take a few minutes…",
-        "runCompleted": "Collection completed. Articles have been submitted for processing.",
-        "runQueued": "The run has been created and is awaiting processing.",
-        "runFailed": "The run was created, but collection failed.",
-        "runId": "Run ID",
-        "runCounts": "Articles: {imported}. Rejected: {rejected}. Websites: {sites}.",
-        "connectionError": "Could not load data. Check your connection and try again.",
-        "runConnectionError": "No response was received. The run may have been created; check its status before submitting again.",
-        "loadingSources": "Loading available websites…",
-        "retry": "Retry",
-        "sourcesTitle": "Collect from websites",
-        "sourcesDescription": "Choose sources from Appendix 1 of the brief to collect articles for your digest.",
-        "sourcesHint": "Choose up to five websites. The brief asks for 3–5 agreed sources for the demonstration. Collection uses the website domain.",
-        "timeHint": "The issue covers the 24 hours before this moment. All times are Moscow time.",
-        "collectSources": "Collect articles",
-        "errors": {
-            "jsonFile": "Choose a file with the .json extension.",
-            "fileTooLarge": "The file must be no larger than 50 MB.",
-            "singleFile": "Upload one news.json file at a time.",
-            "readFile": "Could not read the file. Please select it again.",
-            "invalidJson": "The file contains invalid JSON. Check its contents.",
-            "invalidDataset": "Provide control_time and period_start as ISO 8601 timestamps with seconds and a time zone, exactly 24 hours apart. The supported timezone is Europe/Moscow.",
-            "invalidItems": "The news.json dataset must contain an items array.",
-            "unknownSources": "A selected website is missing from the catalogue. Refresh it and choose your sources again.",
-            "tooManySources": "Choose no more than five different websites per run.",
-            "required": "Choose at least one website.",
-            "invalidTime": "Enter a valid date and time.",
-            "unavailableSources": "Collection is not connected for the selected sources yet.",
-            "duplicateDomains": "Choose websites with different domains."
-        },
-        "sourceSelection": "Source websites",
-        "sourcesNotConnected": "Collection is not connected for the selected sources yet. You can start once they are connected.",
-        "refreshSources": "Refresh catalogue"
-    }
-}
-</i18n>

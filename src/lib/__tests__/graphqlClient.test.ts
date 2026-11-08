@@ -29,6 +29,7 @@ test('sends typed query variables, authorization and cancellation to the configu
     expect(url.href).toBe('https://api.example.test/api/graphql')
     expect(request.method).toBe('POST')
     expect(new Headers(request.headers).get('Authorization')).toBe('Bearer test-token')
+    expect(new Headers(request.headers).get('Accept-Language')).toBe('ru')
     expect(request.signal).toBe(controller.signal)
     expect(JSON.parse(request.body as string)).toMatchObject({ variables: { id: 'item-1' } })
 })

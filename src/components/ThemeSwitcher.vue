@@ -6,8 +6,8 @@
                 variant="ghost"
                 size="icon"
                 class="size-11 rounded-none text-foreground"
-                :aria-label="t('theme')"
-                :title="t('theme')"
+                aria-label="Тема оформления"
+                title="Тема оформления"
             >
                 <Sun v-if="resolvedTheme === 'light'" class="size-5" aria-hidden="true" />
                 <Moon v-else class="size-5" aria-hidden="true" />
@@ -22,7 +22,7 @@
                     :value="theme.value"
                 >
                     <component :is="theme.icon" class="size-5" aria-hidden="true" />
-                    <span class="flex-1">{{ t(theme.label) }}</span>
+                    <span class="flex-1">{{ theme.label }}</span>
                     <Check v-if="preference === theme.value" class="size-4" aria-hidden="true" />
                 </DropdownMenuRadioItem>
             </DropdownMenuRadioGroup>
@@ -41,32 +41,13 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 
-import { useI18n } from 'vue-i18n'
 import { useTheme } from '@/composables/useTheme'
 
-const { t } = useI18n()
 const { preference, resolvedTheme, setTheme } = useTheme()
 
 const themes = [
-    { value: 'light', label: 'light', icon: Sun },
-    { value: 'dark', label: 'dark', icon: Moon },
-    { value: 'auto', label: 'system', icon: Monitor },
+    { value: 'light', label: 'Светлая', icon: Sun },
+    { value: 'dark', label: 'Тёмная', icon: Moon },
+    { value: 'auto', label: 'Системная', icon: Monitor },
 ] as const
 </script>
-
-<i18n lang="json">
-{
-    "ru-RU": {
-        "theme": "Тема оформления",
-        "light": "Светлая",
-        "dark": "Тёмная",
-        "system": "Системная"
-    },
-    "en-GB": {
-        "theme": "Colour theme",
-        "light": "Light",
-        "dark": "Dark",
-        "system": "System"
-    }
-}
-</i18n>

@@ -79,6 +79,7 @@ test('uploads the original JSON file using the GraphQL multipart map', async () 
     const request = fetchMock.mock.calls[0]?.[1]
     expect(new Headers(request?.headers).get('Authorization')).toBe('Bearer session-token')
     expect(new Headers(request?.headers).has('Content-Type')).toBe(false)
+    expect(new Headers(request?.headers).get('Accept-Language')).toBe('ru')
     expect(request?.signal).toBe(controller.signal)
     expect(request?.body).toBeInstanceOf(FormData)
     if (!(request?.body instanceof FormData)) throw new Error('Expected multipart request')

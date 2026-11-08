@@ -1,0 +1,6 @@
+mutation SubscribeEmail($email: String!) {
+    subscribeEmail(email: $email) {
+        status
+        message
+    }
+}

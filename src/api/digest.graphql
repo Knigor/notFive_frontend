@@ -1,0 +1,32 @@
+query Digest($date: String!) {
+    digest(date: $date) {
+        runId
+        controlTime
+        periodStart
+        timezone
+        language
+        publishedAt
+        totalMaterials
+        events {
+            id
+            rank
+            title
+            summary
+            consequences
+            selectionReason
+            sources {
+                id
+                name
+                url
+                publishedAt
+            }
+        }
+        files {
+            digest
+            post
+            email
+            csv
+            emailSubject
+        }
+    }
+}
