@@ -163,8 +163,13 @@ Vue Router использует базовый путь Vite через `import.
 маршруты открывали Vue-приложение в GitHub Pages. При таком переходе Pages
 отдаёт HTTP-статус 404, после чего Vue Router отображает нужную страницу.
 
-Бэкенд размещается отдельно на VPS. Для release-сборки задай repository variable
-`URL_BACKEND`: workflow передаёт её в `VITE_URL_BACKEND` во время сборки.
+Бэкенд размещается отдельно на VPS. Для release-сборки задай переменную
+`URL_BACKEND` в `Settings → Environments → github-pages → Environment variables`.
+Укажи базовый HTTPS-адрес API без `/api/graphql`. Сборка и публикация используют
+окружение `github-pages`; workflow передаёт адрес в `VITE_URL_BACKEND` во время
+сборки и останавливается, если значение пустое. Repository variable `URL_BACKEND`
+также поддерживается. После изменения адреса нужно пересобрать и опубликовать
+фронтенд: переменная встраивается в JavaScript, а не читается браузером из GitHub.
 `bun run dev` и `bun run preview` предназначены для локальной проверки.
 
 ## Кейс и исследование

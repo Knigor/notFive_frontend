@@ -12,6 +12,8 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    environment:
+      name: github-pages
 
     steps:
       - name: Checkout ${{ github.ref }} for repository ${{ github.repository }}
@@ -36,7 +38,12 @@ jobs:
       - name: Build and check types
         env:
           VITE_URL_BACKEND: ${{ vars.URL_BACKEND }}
-        run: bun run build
+        run: |
+          if [ -z "$VITE_URL_BACKEND" ]; then
+            echo "::error::Set URL_BACKEND in github-pages environment variables before building."
+            exit 1
+          fi
+          bun run build
 
       - name: Unit tests
         run: bun run test:coverage
