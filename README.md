@@ -21,7 +21,7 @@ bun run dev
 В `.env` задаётся базовый адрес backend:
 
 ```dotenv
-VITE_URL_BACKEND=http://api.galaxiit.ru/
+VITE_URL_BACKEND=https://api.galaxiit.ru/
 ```
 
 Общая точка входа — экземпляр `api` класса `ApiClient` в `src/api/index.ts`:
@@ -165,9 +165,10 @@ Vue Router использует базовый путь Vite через `import.
 
 Бэкенд размещается отдельно на VPS. Для release-сборки задай переменную
 `URL_BACKEND` в `Settings → Environments → github-pages → Environment variables`.
-Укажи базовый HTTPS-адрес API без `/api/graphql`. Сборка и публикация используют
+Укажи базовый HTTPS-адрес API без `/api/graphql`: `https://api.galaxiit.ru/`. Сборка и публикация используют
 окружение `github-pages`; workflow передаёт адрес в `VITE_URL_BACKEND` во время
-сборки и останавливается, если значение пустое. Repository variable `URL_BACKEND`
+сборки и останавливается, если адрес пустой, некорректный или использует HTTP.
+Repository variable `URL_BACKEND`
 также поддерживается. После изменения адреса нужно пересобрать и опубликовать
 фронтенд: переменная встраивается в JavaScript, а не читается браузером из GitHub.
 `bun run dev` и `bun run preview` предназначены для локальной проверки.

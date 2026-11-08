@@ -43,6 +43,19 @@ jobs:
             echo "::error::Set URL_BACKEND in github-pages environment variables before building."
             exit 1
           fi
+          node --input-type=module <<'JS'
+          let url;
+          try {
+            url = new URL(process.env.VITE_URL_BACKEND);
+          } catch {
+            console.error("::error::URL_BACKEND must be an absolute HTTPS URL.");
+            process.exit(1);
+          }
+          if (url.protocol !== 'https:' || url.username || url.password) {
+            console.error("::error::URL_BACKEND must use HTTPS without credentials.");
+            process.exit(1);
+          }
+          JS
           bun run build
 
       - name: Unit tests
