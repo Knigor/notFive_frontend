@@ -83,7 +83,7 @@ export const resolveSourceIds = (ids: string[], sources: AdminSiteSource[]): Res
     for (const id of uniqueIds) {
         const source = catalog.get(id)
         if (!source) return { ok: false, error: 'unknownSources' }
-        if (source.status !== 'ready') return { ok: false, error: 'unavailableSources' }
+        if (source.status === 'disabled') return { ok: false, error: 'unavailableSources' }
 
         const domain = source.searchDomain.toLowerCase()
         if (domains.has(domain)) return { ok: false, error: 'duplicateDomains' }

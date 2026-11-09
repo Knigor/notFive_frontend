@@ -266,7 +266,7 @@
                             </p>
                             <div v-if="unavailableSources.length" class="space-y-3 rounded-lg border border-border bg-muted/50 p-4">
                                 <p>
-                                    Сбор ещё не подключён для выбранных источников. Запуск станет доступен после их подключения.
+                                    Выбранные источники отключены. Удалите их из выбора или обновите каталог.
                                 </p>
                                 <p class="text-muted-foreground wrap-anywhere">
                                     {{ unavailableSources.map(source => source.name).join(', ') }}
@@ -332,7 +332,7 @@ const inputErrorMessages: Record<string, string> = {
     unknownSources: 'Выбранный сайт отсутствует в каталоге. Обновите каталог и выберите источники заново.',
     tooManySources: 'За один запуск можно выбрать не более пяти разных сайтов.',
     required: 'Выберите хотя бы один сайт.',
-    unavailableSources: 'Сбор для выбранных источников ещё не подключён.',
+    unavailableSources: 'Один из выбранных источников отключён. Удалите его из выбора.',
     duplicateDomains: 'Выберите сайты с разными доменами.',
 }
 
@@ -352,7 +352,7 @@ const sourceError = ref('')
 const availableSources = ref<SiteSource[]>([])
 const sourceSelection = computed(() => resolveSourceIds(selectedSourceIds.value, availableSources.value))
 const unavailableSources = computed(() => availableSources.value.filter(source => (
-    selectedSourceIds.value.includes(source.id) && source.status !== 'ready'
+    selectedSourceIds.value.includes(source.id) && source.status === 'disabled'
 )))
 let sourcesInitialized = false
 const isLoadingSources = ref(false)
