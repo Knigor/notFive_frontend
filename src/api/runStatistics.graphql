@@ -1,0 +1,15 @@
+query RunStatistics($runId: ID!) {
+    runStatistics(runId: $runId) {
+        runId
+        status
+        inputMode
+        queueDurationMs
+        counts { candidates collected imported included merged excluded events }
+        exclusions { code stage site count }
+        calls { stage attempt model durationMs inputTokens outputTokens }
+        discoverySources { url site kind attempted found inspectedLinks uninspectedLinks outsideWindow error }
+        evidence { stage available exact normalized notFound other }
+        search { modelAttempts webSearchCalls traceAvailable }
+        warnings
+    }
+}

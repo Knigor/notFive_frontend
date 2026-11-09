@@ -1,5 +1,5 @@
 <template>
-    <div id="top" class="mx-auto max-w-360 px-4 pb-6 font-serif md:px-8 xl:px-16">
+    <div id="top" class="mx-auto flex min-h-dvh max-w-360 flex-col px-4 pb-6 font-serif md:px-8 xl:px-16">
         <button
             class="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:bg-background focus:p-4 focus:text-foreground focus:outline-2 focus:outline-ring"
             type="button"
@@ -7,7 +7,7 @@
         >
             Перейти к новостям
         </button>
-        <header class="grid h-16 grid-cols-[1fr_auto_1fr] items-center border-b border-border">
+        <header class="grid h-16 shrink-0 grid-cols-[1fr_auto_1fr] items-center border-b border-border">
             <RouterLink
                 class="col-start-2 inline-flex min-h-11 items-center text-[28px] leading-11 text-primary sm:text-4xl"
                 :to="{ name: 'home' }"
@@ -61,7 +61,7 @@
         <main
             id="news"
             ref="news"
-            class="scroll-mt-6"
+            class="flex flex-1 scroll-mt-6 flex-col"
             tabindex="-1"
             :aria-busy="pending"
         >
@@ -81,10 +81,10 @@
                     <EmailSubscriptionDialog />
                 </div>
             </div>
-            <p v-if="pending" class="py-12 text-center font-sans text-muted-foreground" role="status">
+            <p v-if="pending" class="flex flex-1 items-center justify-center py-12 text-center font-sans text-muted-foreground" role="status">
                 Загружаем выпуск…
             </p>
-            <div v-else-if="error" class="space-y-4 py-12 text-center font-sans">
+            <div v-else-if="error" class="flex flex-1 flex-col items-center justify-center gap-4 py-12 text-center font-sans">
                 <p class="text-destructive" role="alert">
                     {{ error }}
                 </p>
@@ -92,17 +92,20 @@
                     Попробовать ещё раз
                 </Button>
             </div>
-            <ol v-else-if="articles.length" class="digest-grid grid list-none gap-8 p-0 md:grid-cols-2 xl:gap-6">
+            <ol
+                v-else-if="articles.length"
+                class="digest-grid grid list-none gap-8 p-0 xl:gap-6"
+                :data-count="articles.length"
+            >
                 <li
                     v-for="article in articles"
                     :key="article.id"
                     class="min-w-0"
-                    :class="`digest-grid__item--${article.rank}`"
                 >
                     <DigestCard :article="article" :total-events="articles.length" />
                 </li>
             </ol>
-            <p v-else class="py-12 text-center font-sans text-muted-foreground" role="status">
+            <p v-else class="flex flex-1 items-center justify-center py-12 text-center font-sans text-muted-foreground" role="status">
                 {{ digest ? 'В этом выпуске нет отобранных событий.' : selectedDate ? 'За выбранную дату опубликованного выпуска нет.' : 'Опубликованных выпусков пока нет.' }}
             </p>
         </main>
@@ -186,46 +189,63 @@ const articles = computed(() => (digest.value?.events ?? []).map(article => ({
 </script>
 
 <style scoped>
+.digest-grid[data-count='1'] {
+    width: 100%;
+    max-width: 56rem;
+    align-self: center;
+    grid-template-columns: minmax(0, 1fr);
+}
+
+@media (min-width: 48rem) {
+    .digest-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
 @media (min-width: 48rem) and (max-width: 79.999rem) {
-    .digest-grid__item--1 {
+    .digest-grid:is([data-count='3'], [data-count='5']) > li:first-child {
         grid-column: 1 / -1;
     }
 }
 
 @media (min-width: 80rem) {
-    .digest-grid {
+    .digest-grid[data-count='3'] {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .digest-grid[data-count='5'] {
         position: relative;
         grid-template-columns: minmax(0, 35fr) minmax(0, 21fr) minmax(0, 23fr);
         grid-template-rows: minmax(284px, auto) minmax(84px, auto) minmax(284px, auto);
     }
 
-    .digest-grid__item--1 {
+    .digest-grid[data-count='5'] > li:nth-child(1) {
         grid-column: 1;
         grid-row: 1 / 4;
     }
 
-    .digest-grid__item--2 {
+    .digest-grid[data-count='5'] > li:nth-child(2) {
         grid-column: 2;
         grid-row: 1 / 3;
     }
 
-    .digest-grid__item--3 {
+    .digest-grid[data-count='5'] > li:nth-child(3) {
         grid-column: 2;
         grid-row: 3;
     }
 
-    .digest-grid__item--4 {
+    .digest-grid[data-count='5'] > li:nth-child(4) {
         grid-column: 3;
         grid-row: 1;
     }
 
-    .digest-grid__item--5 {
+    .digest-grid[data-count='5'] > li:nth-child(5) {
         grid-column: 3;
         grid-row: 2 / 4;
     }
 
-    .digest-grid__item--1::after,
-    .digest-grid__item--2::after {
+    .digest-grid[data-count='5'] > li:nth-child(1)::after,
+    .digest-grid[data-count='5'] > li:nth-child(2)::after {
         position: absolute;
         top: 0;
         bottom: 0;
@@ -235,11 +255,11 @@ const articles = computed(() => (digest.value?.events ?? []).map(article => ({
         pointer-events: none;
     }
 
-    .digest-grid__item--1::after {
+    .digest-grid[data-count='5'] > li:nth-child(1)::after {
         left: calc((100% - 48px) * 35 / 79 + 12px);
     }
 
-    .digest-grid__item--2::after {
+    .digest-grid[data-count='5'] > li:nth-child(2)::after {
         left: calc((100% - 48px) * 56 / 79 + 36px);
     }
 }

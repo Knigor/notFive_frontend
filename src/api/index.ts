@@ -4,6 +4,9 @@ import type { DigestPublicationResult } from '@/api/publishDigest'
 import type { EmailSubscriptionOptions, EmailSubscriptionResult } from '@/api/subscribeEmail'
 import type { SiteSource } from '@/api/availableSiteSources'
 import type { RunStartResult, StartRunInput } from '@/api/startRun'
+import type { RunStatusResult } from '@/api/runStatus'
+import type { RunStatisticsResult } from '@/api/runStatistics'
+import type { RunArtifactFilename } from '@/api/runArtifacts'
 
 import { ping } from '@/composables/useDigest'
 
@@ -14,6 +17,11 @@ import { publishDigest } from '@/api/publishDigest'
 import { publishedDigestDates } from '@/api/publishedDigestDates'
 import { subscribeEmail } from '@/api/subscribeEmail'
 import { startRun } from '@/api/startRun'
+import { runStatus } from '@/api/runStatus'
+import { runStatistics } from '@/api/runStatistics'
+import { downloadRunArchive, downloadRunArtifact } from '@/api/runArtifacts'
+
+export { RUN_ARTIFACT_FILENAMES } from '@/api/runArtifacts'
 
 export type {
     AdminLoginInput,
@@ -23,6 +31,9 @@ export type {
     EmailSubscriptionOptions,
     EmailSubscriptionResult,
     RunStartResult,
+    RunStatusResult,
+    RunStatisticsResult,
+    RunArtifactFilename,
     SiteSource,
     StartRunInput,
 }
@@ -68,6 +79,22 @@ export class ApiClient {
 
     startRun(input: StartRunInput, token: string, signal?: AbortSignal): Promise<RunStartResult> {
         return startRun(new URL('api/graphql', this.baseUrl), input, token, signal)
+    }
+
+    runStatus(runId: string, token: string, signal?: AbortSignal): Promise<RunStatusResult | null> {
+        return runStatus(new URL('api/graphql', this.baseUrl), runId, token, signal)
+    }
+
+    runStatistics(runId: string, token: string, signal?: AbortSignal): Promise<RunStatisticsResult | null> {
+        return runStatistics(new URL('api/graphql', this.baseUrl), runId, token, signal)
+    }
+
+    downloadRunArtifact(runId: string, filename: RunArtifactFilename, token: string, signal?: AbortSignal): Promise<Blob> {
+        return downloadRunArtifact(this.baseUrl, runId, filename, token, signal)
+    }
+
+    downloadRunArchive(runId: string, token: string, signal?: AbortSignal): Promise<Blob> {
+        return downloadRunArchive(this.baseUrl, runId, token, signal)
     }
 }
 

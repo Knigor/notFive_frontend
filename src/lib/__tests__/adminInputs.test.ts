@@ -151,11 +151,24 @@ describe('resolveSourceIds', () => {
         })
     })
 
-    test.each(['candidate', 'disabled'])('rejects selected sources that are not ready: %s', (status) => {
+    test('starts collection from candidate and ready sources without a manual connection step', () => {
         const ready = createSource('ready.example')
-        const unavailable = createSource('unavailable.example', { status })
+        const candidate = createSource('candidate.example', { status: 'candidate' })
 
-        expect(resolveSourceIds([ready.id, unavailable.id], [ready, unavailable])).toEqual({
+        expect(resolveSourceIds([candidate.id, ready.id], [ready, candidate])).toEqual({
+            ok: true,
+            sources: [candidate, ready],
+        })
+    })
+
+    test('rejects a selected source disabled after the catalog refresh', () => {
+        const ready = createSource('ready.example')
+        const unavailable = createSource('unavailable.example', { status: 'candidate' })
+        const selection = [ready.id, unavailable.id]
+
+        expect(resolveSourceIds(selection, [ready, unavailable]).ok).toBe(true)
+
+        expect(resolveSourceIds(selection, [ready, { ...unavailable, status: 'disabled' }])).toEqual({
             ok: false,
             error: 'unavailableSources',
         })

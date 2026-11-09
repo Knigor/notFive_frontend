@@ -2,7 +2,11 @@
     <article
         class="digest-card flex h-full min-w-0 flex-col"
         lang="ru"
-        :class="{ 'digest-card--lead': article.rank === 1, 'digest-card--featured': featured }"
+        :class="{
+            'digest-card--lead': article.rank === 1,
+            'digest-card--featured': featured,
+            'digest-card--balanced': totalEvents > 1 && totalEvents < 5,
+        }"
         :aria-labelledby="`article-${article.id}`"
     >
         <img
@@ -213,5 +217,21 @@ const sourceUrl = (value: string | null | undefined) => {
         line-height: 24px;
     }
 
+}
+
+@media (min-width: 48rem) {
+    .digest-card--balanced .digest-card__image {
+        height: 224px;
+    }
+
+    .digest-card--balanced .digest-card__title {
+        font-size: 32px;
+        line-height: 36px;
+    }
+
+    .digest-card--balanced .digest-card__summary {
+        font-size: 16px;
+        line-height: 24px;
+    }
 }
 </style>

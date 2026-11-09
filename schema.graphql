@@ -4,6 +4,7 @@ type Query {
   digest(date: String!): Digest
   availableSiteSources: [SiteSource!]!
   runStatus(runId: ID!): RunStatus
+  runStatistics(runId: ID!): RunStatistics
 }
 
 type Digest {
@@ -59,6 +60,93 @@ type RunStatus {
   startedAt: String
   finishedAt: String
   files: [String!]!
+  diagnostics: RunDiagnostics!
+}
+
+type RunDiagnostics {
+  collectionRunId: String
+  digestRunId: String
+  counts: RunDiagnosticCounts!
+  warnings: [String!]!
+  materials: [RunDiagnosticMaterial!]!
+}
+
+type RunDiagnosticCounts {
+  candidates: Int!
+  collected: Int!
+  imported: Int!
+  included: Int!
+  merged: Int!
+  excluded: Int!
+  events: Int!
+}
+
+type RunDiagnosticMaterial {
+  id: ID!
+  url: String
+  title: String
+  stage: String!
+  status: String!
+  group: String
+  reason: String
+  error: String
+}
+
+type RunStatistics {
+  runId: ID!
+  status: String!
+  inputMode: String!
+  queueDurationMs: Float
+  counts: RunDiagnosticCounts!
+  exclusions: [RunExclusionStatistic!]!
+  calls: [RunGenerationStatistic!]!
+  discoverySources: [RunDiscoveryStatistic!]!
+  evidence: [RunEvidenceStatistic!]!
+  search: RunSearchStatistic!
+  warnings: [String!]!
+}
+
+type RunExclusionStatistic {
+  code: String!
+  stage: String!
+  site: String!
+  count: Int!
+}
+
+type RunGenerationStatistic {
+  stage: String!
+  attempt: Int!
+  model: String
+  durationMs: Float
+  inputTokens: Float
+  outputTokens: Float
+}
+
+type RunDiscoveryStatistic {
+  url: String!
+  site: String!
+  kind: String!
+  attempted: Boolean!
+  found: Int
+  inspectedLinks: Int
+  uninspectedLinks: Int
+  outsideWindow: Int
+  error: String
+}
+
+type RunEvidenceStatistic {
+  stage: String!
+  available: Boolean!
+  exact: Int!
+  normalized: Int!
+  notFound: Int!
+  other: Int!
+}
+
+type RunSearchStatistic {
+  modelAttempts: Int!
+  webSearchCalls: Int
+  traceAvailable: Boolean!
 }
 
 type Mutation {

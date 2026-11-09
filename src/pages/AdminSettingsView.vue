@@ -73,19 +73,19 @@
                     >
                         <p v-if="isSubmitting" class="flex items-center gap-2 text-primary">
                             <LoaderCircle class="size-4 shrink-0 animate-spin motion-reduce:animate-none" aria-hidden="true" />
-                            Обрабатываем материалы. Это может занять несколько минут…
+                            Создаём запуск…
                         </p>
                         <p v-else-if="submitError" class="text-destructive">
                             {{ submitError }}
                         </p>
                         <template v-else-if="runResult">
-                            <p class="font-medium" :class="runResult.dispatchStatus === 'failed' ? 'text-destructive' : 'text-primary'">
-                                {{ runResult.dispatchStatus === 'failed' ? 'Запуск создан, но сбор завершился ошибкой.' : runResult.dispatchStatus === 'completed' ? 'Сбор завершён, материалы переданы на обработку.' : 'Запуск создан и ожидает обработки.' }}
+                            <p class="font-medium text-primary">
+                                Запуск создан. Состояние обработки и файлы доступны ниже.
                             </p>
                             <p class="mt-2 text-muted-foreground wrap-anywhere">
                                 Номер запуска: {{ runResult.runId }}
                             </p>
-                            <p class="mt-1">
+                            <p v-if="runResult.imported || runResult.rejected || runResult.siteCount" class="mt-1">
                                 Материалов: {{ runResult.imported }}. Отклонено: {{ runResult.rejected }}. Сайтов: {{ runResult.siteCount }}.
                             </p>
                         </template>
@@ -266,7 +266,7 @@
                             </p>
                             <div v-if="unavailableSources.length" class="space-y-3 rounded-lg border border-border bg-muted/50 p-4">
                                 <p>
-                                    Сбор ещё не подключён для выбранных источников. Запуск станет доступен после их подключения.
+                                    Выбранные источники отключены. Удалите их из выбора или обновите каталог.
                                 </p>
                                 <p class="text-muted-foreground wrap-anywhere">
                                     {{ unavailableSources.map(source => source.name).join(', ') }}
@@ -295,6 +295,46 @@
                         </div>
                     </form>
                 </section>
+                <section class="min-w-0 rounded-xl border border-border bg-card p-5 shadow-xs sm:p-8 lg:col-start-2" aria-labelledby="result-heading">
+                    <h2 id="result-heading" class="font-serif text-2xl leading-8 sm:text-3xl">
+                        Результат запуска
+                    </h2>
+                    <form class="mt-6" novalidate @submit.prevent="openRun">
+                        <label class="mb-2 block text-sm font-medium" for="run-id">Номер запуска</label>
+                        <div class="flex flex-col gap-3 sm:flex-row">
+                            <Input
+                                id="run-id"
+                                v-model="runIdInput"
+                                class="h-11 min-w-0 flex-1 font-mono text-sm"
+                                placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+                                autocomplete="off"
+                                spellcheck="false"
+                                aria-describedby="run-id-hint run-id-error"
+                                :aria-invalid="Boolean(runIdError)"
+                                @update:model-value="runIdError = ''"
+                            />
+                            <Button class="min-h-11" type="submit" variant="outline">
+                                Открыть
+                            </Button>
+                            <Button
+                                v-if="activeRunId"
+                                class="min-h-11"
+                                type="button"
+                                variant="ghost"
+                                @click="clearRun"
+                            >
+                                Очистить
+                            </Button>
+                        </div>
+                        <p id="run-id-hint" class="mt-2 text-xs leading-5 text-muted-foreground">
+                            Новый запуск появится здесь автоматически. По номеру можно вернуться к предыдущему результату.
+                        </p>
+                        <p id="run-id-error" class="mt-2 text-sm text-destructive" role="alert">
+                            {{ runIdError }}
+                        </p>
+                    </form>
+                    <AdminRunPanel v-if="activeRunId" :run-id="activeRunId" @unauthorized="requireSignIn" />
+                </section>
             </div>
         </main>
     </div>
@@ -309,10 +349,12 @@ import { computed, onBeforeUnmount, onMounted, ref, shallowRef } from 'vue'
 import { ArrowLeft, ArrowRight, CircleCheck, FileJson, Globe, LoaderCircle, LogOut, Upload, X } from '@lucide/vue'
 import { RouterLink } from 'vue-router'
 import AdminDateTimePicker from '@/components/AdminDateTimePicker.vue'
+import AdminRunPanel from '@/components/AdminRunPanel.vue'
 import AdminSourceSelect from '@/components/AdminSourceSelect.vue'
 import BrandLogo from '@/components/BrandLogo.vue'
 import ThemeSwitcher from '@/components/ThemeSwitcher.vue'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 
 import { useRoute, useRouter } from 'vue-router'
 import { useAdminAuth } from '@/composables/useAdminAuth'
@@ -332,7 +374,7 @@ const inputErrorMessages: Record<string, string> = {
     unknownSources: 'Выбранный сайт отсутствует в каталоге. Обновите каталог и выберите источники заново.',
     tooManySources: 'За один запуск можно выбрать не более пяти разных сайтов.',
     required: 'Выберите хотя бы один сайт.',
-    unavailableSources: 'Сбор для выбранных источников ещё не подключён.',
+    unavailableSources: 'Один из выбранных источников отключён. Удалите его из выбора.',
     duplicateDomains: 'Выберите сайты с разными доменами.',
 }
 
@@ -352,7 +394,7 @@ const sourceError = ref('')
 const availableSources = ref<SiteSource[]>([])
 const sourceSelection = computed(() => resolveSourceIds(selectedSourceIds.value, availableSources.value))
 const unavailableSources = computed(() => availableSources.value.filter(source => (
-    selectedSourceIds.value.includes(source.id) && source.status !== 'ready'
+    selectedSourceIds.value.includes(source.id) && source.status === 'disabled'
 )))
 let sourcesInitialized = false
 const isLoadingSources = ref(false)
@@ -360,6 +402,47 @@ const catalogError = ref('')
 const isSubmitting = ref(false)
 const submitError = ref('')
 const runResult = ref<RunStartResult | null>(null)
+const runIdPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+const lastRunStorageKey = `notfive.admin.last-run:${import.meta.env.VITE_URL_BACKEND}`
+const readLastRunId = () => {
+    try {
+        const value = sessionStorage.getItem(lastRunStorageKey) ?? ''
+        return runIdPattern.test(value) ? value : ''
+    } catch {
+        return ''
+    }
+}
+const activeRunId = ref(readLastRunId())
+const runIdInput = ref(activeRunId.value)
+const runIdError = ref('')
+const selectRun = (runId: string) => {
+    activeRunId.value = runId
+    runIdInput.value = runId
+    runIdError.value = ''
+    try {
+        sessionStorage.setItem(lastRunStorageKey, runId)
+    } catch {
+        return
+    }
+}
+const openRun = () => {
+    const runId = runIdInput.value.trim()
+    if (!runIdPattern.test(runId)) {
+        runIdError.value = 'Введите номер запуска в формате UUID.'
+        return
+    }
+    selectRun(runId)
+}
+const clearRun = () => {
+    activeRunId.value = ''
+    runIdInput.value = ''
+    runIdError.value = ''
+    try {
+        sessionStorage.removeItem(lastRunStorageKey)
+    } catch {
+        return
+    }
+}
 const catalogRequest = new AbortController()
 let runRequest: AbortController | null = null
 const timeError = ref(false)
@@ -493,6 +576,7 @@ const startRun = async (input: StartRunInput) => {
     runRequest = new AbortController()
     try {
         runResult.value = await api.startRun(input, token, runRequest.signal)
+        selectRun(runResult.value.runId)
     } catch (error) {
         if (runRequest.signal.aborted) return
         if (isUnauthorizedError(error)) await requireSignIn()
