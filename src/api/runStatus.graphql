@@ -1,0 +1,35 @@
+query RunStatus($runId: ID!) {
+    runStatus(runId: $runId) {
+        runId
+        status
+        error
+        createdAt
+        startedAt
+        finishedAt
+        files
+        diagnostics {
+            collectionRunId
+            digestRunId
+            counts {
+                candidates
+                collected
+                imported
+                included
+                merged
+                excluded
+                events
+            }
+            warnings
+            materials {
+                id
+                url
+                title
+                stage
+                status
+                group
+                reason
+                error
+            }
+        }
+    }
+}
